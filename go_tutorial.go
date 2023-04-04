@@ -444,3 +444,218 @@ func main() {
 
 - Crie uma variável de tipo string utilizando uma raw string literal.
 - Demonstre-a.
+
+// Cap 6.1
+
+- Fluxo de controle diz a maneira como o programa irá ler as linhas
+- Existe o fluxo sequencial, condicional e repetição
+
+// Cap 6.2
+
+- Inicialização, condição e pós
+- Ao final de todo statement em go, existe um ponto e vírgula, que vc pode omitir
+- se trocar de linha
+- Não existe o while em go
+
+package main
+
+import ("fmt")
+
+func main(){
+  for x := 0; x<10; x++{
+    fmt.Println(x)
+  }
+}
+
+// Cap 6.3
+
+- Nested loops -> exemplo do relógio, cada vez que o ponteiro dos minutos da uma volta
+- o ponteiro dos segundos deu 60 voltas
+- o mesmo acontece em calendários, com dias, semanas, meses
+
+package main
+
+import("fmt")
+
+func main () {
+  for horas := 1; horas <= 12; horas++{
+    fmt.Printf("Hora:\t%v\n", horas)
+    for minutos := 0; minutos < 60; minutos ++{
+      fmt.Print(" ", minutos)
+    }
+    fmt.Println()
+  }
+}
+
+// Cap 6.4
+
+- Para usar o while, basta usar o for apenas com o parametro de condicional
+- break quebra qualquer loop
+
+// Cap 6.5
+
+- continue encerra a iteração atual do loop, e vai para a próxima
+
+package main
+
+import("fmt")
+
+func main(){
+  for i:=0; i<20; i++{
+    if i%2 != 0{
+      fmt.Println(i) // printa os impares
+    }
+  }
+
+  for i:=0; i<20; i++
+    if i%2 != 0{
+      continue //vai pular os impares
+    }
+    fmt.Println(i) // printa os pares
+
+}
+
+// Cap 6.6
+
+- Format printing:
+    - Decimal       %d
+    - Hexadecimal   %#x
+    - Unicode       %#U
+    - Tab           \t
+    - Linha nova    \n
+- Faça um loop dos números 33 a 122, e utilize format printing para demonstrá-los como texto/string.
+
+package main
+
+import("fmt")
+
+func main() {
+	for i := 33; i < 123; i++ {
+    fmt.Printf("%v: %v\n", i, string(i))
+	}
+}
+
+// Cap 6.7
+
+- Pode usar o operador NOT (!) nas expressões lógicas
+- Pode usar a condição de inicialização no if
+
+// Cap 6.8
+
+- if, else
+- if, else if, else
+- if, else if, else if, ..., else
+
+//  Cap 6.9
+
+- switch avalia expressões e escolhe a primeria que é true
+- expression pode ser true, false, ou variável, ele vai comparar a condition com
+- a expression do switch. Default é true
+- se dentro de um case que FOI EXECUTADO tiver fallthrough
+- ele vai executar o proximo case, independente da condition
+- default serve caso nenhum case seja atendido
+- switch expression {
+case condition:
+  
+}
+
+package main
+
+import("fmt")
+
+func main(){
+  quem_esta_no_escritório_hoje := "zezinho"
+  switch quem_esta_no_escritório_hoje{
+    case "zezinho":
+      fmt.Println("hoje quem está no escritório é o zezinho")
+      fallthrough
+    case "marquinhos":
+      fmt.Println("sempre que o zezinho vem, o marquinhos vem")
+    case "joana":
+      fmt.Println("hoje quem está no escritório é a joana")
+    case "zezinho", "zezao", "ze": // cases compostos (OR)
+      fmt.Println("hoje quem está no escritório é o zezinho 2") // não será executado pq executa apenas o primeiro
+    default:
+      fmt.Println("não encontrei ninguẃm no escritório")
+  }
+}
+
+// Cap 6.10
+
+- switch pode avaliar tipos
+- switch pode ter inicialização
+
+package main
+
+import("fmt")
+
+var x interface{} // sem tipo, interface vazia
+
+func main(){
+  switch x = 3.14; x.(type){
+  case int:
+    fmt.Println("x é um int")
+  case float64:
+    fmt.Println("x é um float64")
+  case bool:
+    fmt.Println("x é um bool")
+  case string:
+    fmt.Println("x é um string")
+    
+  }
+}
+
+// Cap 6.11
+
+- Operadores lógicos
+- &&    conditional AND    p && q  is  "if p then q else false"
+- ||    conditional OR     p || q  is  "if p then true else q"
+- !     NOT                !p      is  "not p"
+
+// Cap 7.1
+
+- Põe na tela: todos os números de 1 a 10000.
+
+// Cap 7.2
+
+- Põe na tela: O unicode code point de todas as letras maiúsculas do alfabeto, três vezes cada.
+- Por exemplo:
+    65
+        U+0041 'A'
+        U+0041 'A'
+        U+0041 'A'
+    66
+        U+0042 'B'
+        U+0042 'B'
+        U+0042 'B' 
+    ...e por aí vai.
+
+// Cap 7.3
+
+- Crie um loop utilizando a sintaxe: for condition {}
+- Utilize-o para demonstrar os anos desde que você nasceu.
+
+// Cap 7.4
+
+- Crie um loop utilizando a sintaxe: for {}
+- Utilize-o para demonstrar os anos desde que você nasceu.
+
+// Cap 7.5
+
+- Demonstre o resto da divisão por 4 de todos os números entre 10 e 100
+
+// Cap 7.6
+
+- Crie um programa que demonstre o funcionamento da declaração if.
+
+// Cap 7.7
+
+- Utilizando a solução anterior, adicione as opções else if e else.
+
+// Cap 7.8
+
+- Crie um programa que utilize a declaração switch, sem switch statement especificado.
+
+// Cap 7.9
+
+
