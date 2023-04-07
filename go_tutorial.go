@@ -656,6 +656,375 @@ func main(){
 
 - Crie um programa que utilize a declaração switch, sem switch statement especificado.
 
-// Cap 7.9
+// Cap 8.1
+
+- Arrays permitem guardar valores diferentes que podem ou não ser do mesmo tipo
+- Tipos e tamanhos diferentes de arrays não são compativeis
+
+package main
+
+import("fmt")
+
+var x [5]int
+
+func main(){
+  x[0] = 1
+  x[1] = 10
+  fmt.Println(x[0],x[1])
+  fmt.Println(x) // Os demais es~tao com o valor zero do seu tipo
+  fmt.Println(len(x))
+}
+
+// Cap 8.2
+
+- Tipos de dados compostos, sem comprimento definido
+- São feitos de arrays
+
+package  main
+
+import("fmt")
+
+func main(){
+  array := [5]int{1,2,3,4,5}
+  fmt.Println(array)
+  slice := []int{1,2,3,4,5}
+  fmt.Println(slice)
+
+  slice2 := append(slice,6)
+  fmt.Println(slice2)
+
+  smt.Prinln(slice[3])
+  slice[3] = 34990
+  fmt.Prinln(slice[3])
+
+  // Proibido em slice pois ele vem de um array subadjacente: slice[2] = 1
+}
+
+// Cap 8.3
+
+-
+
+package main
+
+import("fmt")
+
+func main(){
+  slice :=[]string{"banana", "maça", "jaca", "pessego"}
+
+  // Se não quiser um destes outputs, só usar o _
+  for indice, valor := range slice {
+    fmt.Prinln("No indice", indice, "temos o valor:", valor)
+  }
+  
+  // Não funciona: slice[4] = "melancia"
+  slice = append(slice, "melancia")
+
+  for indice, valor := range slice {
+    fmt.Prinln("No indice", indice, "temos o valor:", valor)
+  }
+}
+
+// Cap 8.4
+
+- x[:], x[a:], x[:b], x[a:b]
+- "a" é incluso
+- "b" não é incluso
+- você excluir um item adiconando tudo que tinha antes e tudo que tinha depois
+
+package main
+
+import("main")
+
+func main(){
+  sabores := []string{"pepperoni","mozzarela","abacaxi","4 queijos", "marguerita"}
+
+  fatia := sabores[0:2]
+  fmt.Prinln(fatia) // -> pepperoni e mozzarela
+
+  fatia = sabores[2:len(sabores)] // -> abacaxi até o final
+  sabores = append(sabores[:2], sabores[3:]...) // tirando a abacaxi
+}
 
 
+// Cap 8.5
+
+- append aceita como argumentos uma slice e os tipos da sice
+
+package main
+import("fmt")
+
+func main(){
+  umaslice := []int{1,2,3,4}
+  outra slice := []int{9,10,11,12}
+
+  fmt.Println(umaslice)
+
+  umaslice = append(umaslice, 5,6,7,8)
+  // Os ... servem para "desenrolar" a slice, ele enumera os itens dessa slice
+  // Precisa fazer iso pq o o argumento tem que ser int, e não slice of int
+
+  umaslice = append(umaslice, outraslide...)
+}
+
+// Cap 8.6
+
+- Sempre que um slice muda de tamanho, um novo array é criado
+- Para evitar problemas de benchmark, use make([]T,len,cap)
+
+
+package main
+import("fmt")
+
+func main(){
+  slice := make([]int,5,10)
+
+  slice[0], slice[1], slice[2], slice[3], slice[4] = 1,2,3,4,5
+
+  slice = append(slice,6)
+  slice = append(slice,7)
+  slice = append(slice,8)
+  slice = append(slice,9)
+  slice = append(slice,10)
+
+  fmt.Println(slice, len(slice), cap(slice)) // 10 elementos, 10, 10
+
+  slice = append(slice,10)
+
+  fmt.Println(slice,len(slice),cap(slice)) // 11 elementos, 11, 20
+}
+
+// Cap  8.7
+
+- slices mmulti-dimensional (matrix)
+
+package main
+import("fmt")
+func main(){
+  ss := [][]int{[]int{1,2,3,4,5,6},[]int{7,8,9,10,11,12},[]int{13,14,15,16,17,18}}
+  fmt.Prtinln(ss[2][4])
+}
+
+// Cap 8.8
+
+- Quando vc quer usar slices de um slice, faça um for loop usando for loop
+- Se usar slices diferentes com o msmo array subjacente, vc modifcará o array original
+
+// Cap 8.9
+
+- Map são key-values, não ordenados
+- Exemplo: lista telefonica 
+- Performance muito boa
+- Use os comma ok
+
+package main
+import("fmt")
+func main(){
+  amigos := map[string]int{
+    "alfredo": 5551234,
+    "joana": 9996789
+  }
+  fmt.Print(amigos)
+  fmt.Println(amigos["joana"])
+
+  amigos["gopher"] = 4444444
+  fmt.Println(amigos["gopher"])
+
+  fmt.Prtinln(amigos["romario"]) // Vai devolver o Zero Value
+  // Como diferenciar Zero Value de um valor 0
+  // Comma ok
+
+  será, ok := amigos["fantasma"]
+  fmt.Prinln(será,ok) // 0 false (ok é um bool que mostra se tem ou não no map)
+
+  if será, ok := amigos["fantasma"], !ok {
+    fmt.Println("não tem!")
+  } else {
+    fmt.Prinln(será)
+  }
+
+}
+
+// Cap 8.10
+
+- Para usar range em map, use sempre kay, value, ou _
+- Para deletar, asta usar delete(map,key)
+
+package main
+import("fmt")
+func main(){
+  qualquercoisa := map[int]string{
+    123: "muito legal",
+    98: "menos legal um pouquinho",
+    19: "idade de ir para festa",
+    983: "esse é massa"
+  }
+
+  fmt.Println(qualquercoisa)
+
+  total := 0
+  for key, value := range qualquercoisa { //lembre que não é ordenado
+    total += key
+  }
+
+  delete(qualquercoisa, 123)
+}
+
+// Cap 9.1
+
+- Usando uma literal composta:
+     - Crie um array que suporte 5 valores to tipo int
+     - Atribua valores aos seus índices
+- Utilize range e demonstre os valores do array.
+- Utilizando format printing, demonstre o tipo do array.
+
+// Cap 9.2
+
+Usando uma literal composta:
+  - Crie uma slice de tipo int
+  - Atribua 10 valores a ela
+- Utilize range para demonstrar todos estes valores.
+- E utilize format printing para demonstrar seu tipo.
+
+// Cap 9.3
+
+- Utilizando como base o exercício anterior, utilize slicing para demonstrar os valores:
+    - Do primeiro ao terceiro item do slice (incluindo o terceiro item!)
+    - Do quinto ao último item do slice (incluindo o último item!)
+    - Do segundo ao sétimo item do slice (incluindo o sétimo item!)
+    - Do terceiro ao penúltimo item do slice (incluindo o penúltimo item!)
+    - Desafio: obtenha o mesmo resultado acima utilizando a função len() para determinar o penúltimo item
+
+// Cap 9.4
+
+- Começando com a seguinte slice:
+    - x := []int{42, 43, 44, 45, 46, 47, 48, 49, 50, 51}
+- Anexe a ela o valor 52;
+- Anexe a ela os valores 53, 54 e 55 utilizando uma única declaração;
+- Demonstre a slice;
+- Anexe a ela a seguinte slice:
+    - y := []int{56, 57, 58, 59, 60}
+- Demonstre a slice x.
+
+// Cap 9.5
+
+- Começe com essa slice:
+    - x := []int{42, 43, 44, 45, 46, 47, 48, 49, 50, 51}
+- Utilizando slicing e append, crie uma slice y que contenha os valores:
+    - [42, 43, 44, 48, 49, 50, 51]
+
+
+// Cap 9.6
+
+- Crie uma slice usando make que possa conter todos os estados do Brasil.
+    - Os estados: "Acre", "Alagoas", "Amapá", "Amazonas", "Bahia", "Ceará", "Espírito Santo", "Goiás", "Maranhão", "Mato Grosso", "Mato Grosso do Sul", "Minas Gerais", "Pará", "Paraíba", "Paraná", "Pernambuco", "Piauí", "Rio de Janeiro", "Rio Grande do Norte", "Rio Grande do Sul", "Rondônia", "Roraima", "Santa Catarina", "São Paulo", "Sergipe", "Tocantins"
+- Demonstre o len e cap da slice.
+- Demonstre todos os valores da slice sem utilizar range.
+
+// Cap 9.7
+
+- Crie uma slice contendo slices de strings ([][]string). Atribua valores a este slice multi-dimensional da seguinte maneira:
+    - "Nome", "Sobrenome", "Hobby favorito"
+- Inclua dados para 3 pessoas, e utilize range para demonstrar estes dados.
+
+
+// Cap 9.8
+
+- Crie um map com key tipo string e value tipo []string.
+    - Key deve conter nomes no formato sobrenome_nome
+    - Value deve conter os hobbies favoritos da pessoa
+- Demonstre todos esses valores e seus índices.
+
+
+// Cap 10.1
+
+- Permite armazenar dados de tipos diferentes
+
+package main
+import("fmt")
+
+type cliente struct{
+    nome      string
+    sobrenome string
+    fumante   bool
+}
+func main(){
+  cliente1 := cliente{
+    nome:       "João",
+    sobrenome:  "da Silva",
+    fumante:    false,
+  }
+  ciente2 := cliente{"Joana","Pereira", true}
+
+  fmt.Println(cliente1)
+  fmt.Println(cliente2)
+}
+
+
+// Cap 10.2
+
+- Também é possível ter structs dentro de outro struct
+
+package main
+import("fmt")
+
+type pessoa struct{
+  nome  string
+  idade int
+}
+
+type profissional struct{
+  pessoa
+  titulo  int
+  salario int
+
+func main(){
+  pessoa1 := pessoa{
+    nome: "Alfredo",
+    idade:  30,
+  }
+
+  pessoa2 := pessoa{
+    pessoa: pessoa{
+      nome: "Maricota",
+      idade:  31,
+    },
+    titulo: "Pizzaiola",
+    salario:  10000,
+  }
+  fmt.Println(pessoa1)
+  fmt.Println(pessoa2)
+
+  pessoa3 := pessoa{"Mauricio",40}
+  pessoa4 := profissional{pessoa{"Vanderlei",50}, "Político", 30000}
+
+}
+
+// Cap 10.3
+
+- Para acessar apenas um campo, use .
+
+
+  fmt.Println(pessoa1.nome)
+  fmt.Println(pessoa2.pessoa.nome)
+  // Caso não haja conflito de nome, é possível acessar o struct imbutido
+  fmt.Println(pessoa2.pessoa)
+
+
+// Cap 10.4
+
+- Structs vc declara um tipo e vc faz quantos valores vc quiser desse tipo
+- Structs anônimos são descartáveis e vc não declara tipos
+
+package main
+import("fmt")
+
+func main(){
+  x := struct{
+    nome  string
+    idade int
+  }{
+    nome: "Mario",
+    idade:  50}
+  
+    fmt.Println(x)
+}
