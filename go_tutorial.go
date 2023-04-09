@@ -136,7 +136,7 @@ import{
   "fmt"
 }
 
-func mian() {
+func main() {
   // \" \n, \t são interpretados
   x := "oi, bom dia\ncomo vai?\tespero \"que\" tudo bem."
   fmt.Println(x)
@@ -1028,3 +1028,502 @@ func main(){
   
     fmt.Println(x)
 }
+
+// Cap 11.1
+
+- Crie um tipo "pessoa" com tipo subjacente struct, que possa conter os seguintes campos:
+    - Nome
+    - Sobrenome
+    - Sabores favoritos de sorvete
+- Crie dois valores do tipo "pessoa" e demonstre estes valores, utilizando range na slice que contem os sabores de sorvete.
+
+
+// Cap 11.2
+
+- Utilizando a solução anterior, coloque os valores do tipo "pessoa" num map, utilizando os sobrenomes como key.
+- Demonstre os valores do map utilizando range.
+- Os diferentes sabores devem ser demonstrados utilizando outro range, dentro do range anterior.
+
+// Cap 11.3
+
+- Crie um novo tipo: veículo
+    - O tipo subjacente deve ser struct
+    - Deve conter os campos: portas, cor
+- Crie dois novos tipos: caminhonete e sedan
+    - Os tipos subjacentes devem ser struct
+    - Ambos devem conter "veículo" como struct embutido
+    - O tipo caminhonete deve conter um campo bool chamado "traçãoNasQuatro"
+    - O tipo sedan deve conter um campo bool chamado "modeloLuxo"
+- Usando os structs veículo, caminhonete e sedan:
+    - Usando composite literal, crie um valor de tipo caminhonete e dê valores a seus campos
+    - Usando composite literal, crie um valor de tipo sedan e dê valores a seus campos
+- Demonstre estes valores.
+- Demonstre um único campo de cada um dos dois.
+
+// Cap 11.4
+
+- Crie e use um struct anônimo.
+- Desafio: dentro do struct tenha um valor de tipo map e outro do tipo slice.
+
+// Cap 12.1
+
+- Em go, quase tudo é pass by value, e não pass by reference (como é no python)
+- func (receiver) nome(parametro) (output1, output2)
+- output := func(argumento)
+- outras maneiras de definir os paramtros
+- (x, y, int) se forem todos int
+- (x int, y string)
+- Também é possível fazer uma funcão com uma quantidade variádica de elementos
+- Parâmetros variádicos deve ser sempre o último (s tring, x ...int) // espera receber ints, opr isso, se tier um slice, use o operador ...
+
+func soma (x,y int) int{
+  return x+y
+}
+
+func basica () {
+  fmt.Prinln("oi, bom dia")
+}
+
+func soma_variadica(x ... int) (int, int){
+  soma := 0
+  for _,v := range x{
+    soma += v 
+  }
+  return soma, len(x)
+}
+
+// Cap 12.2
+
+- Use o operador ... para desenrolar uma slice of intt  e passar como paramtros o tipo int, e não slice of int
+
+si := []int{1,2,3,4,5,6}
+soma_variadica(si...)
+
+func soma_variadica(x ... int) int{
+  soma := 0
+  for _,v := range x{
+    soma += v 
+  }
+  return soma
+}
+
+// Cap 12.3
+
+- defer é aquilo que o brasileiro faz quando ele tiver tempo
+- defer é um statement que será executado de última hora
+- se tiver dois defer, o primeiro a ser adicionado é o último a ser executado (pilha)
+- first in, last out
+- Útil para abrir e fechar arquivos/conexões de rede, nesse caso:
+- 1: abrir arquivo
+- 2: defer fechar arquivo
+- 3: editar arquivo
+package main
+import("fmt")
+
+func main(){
+  defer fmt.Println("com defer, veio primeiro") // é o 2 a ser impresso
+  fmt.Println("sem defer, veio depois") // é  impresso antes
+}
+
+func main() {
+  defer fmt.Println("1") // 4 a ser impresso
+  defer fmt.Println("2") // 3 a ser impresso
+  fmt.Println("3") // 1 a ser impresso
+  fmt.Println("4") // 2 a ser impresso
+
+}
+
+// Cap 12.4
+
+- Método é uma função anexada a um tipo (metodo)
+- Receiver é exclusivo, a função somente pode  receber aquele tipo
+- Um método adiciona uma função exclusivamente a um tipo, podendo suar a chamada por variavel.metodo() 
+- Não é possível chamá-la com nome_func()
+
+package main
+import("fmt")
+
+type pessoa struct{
+  nome  string
+  idade int
+}
+
+// sintaxe
+// func (receiver) identifier(parameters) (returns) { code }
+
+func (p pessoa) oibomdia() {
+  fmt.Println(p.nome, "diz bom dia!")
+}
+
+func main() {
+  mauricio := pessoa{"Maurício", 30}
+  mauricio.oibomdia()
+}
+
+// Cap 12.5
+
+- Interfaces e polimorfismo
+
+- Em Go, valores podem ter mais que um tipo.
+- Uma interface permite que um valor tenha mais que um tipo.
+- Se um tipo tem os mesmos métodos que uma interface, ele percente a ela
+- Declaração: keyword identifier type → type x interface
+- Após declarar a interface, deve-se definir os métodos necessários para implementar essa interface.
+- Se um tipo possuir todos os métodos necessários (que, no caso da interface{}, pode ser nenhum) então esse tipo implicitamente implementa a interface.
+- Esse tipo será o seu tipo e também o tipo da interface.
+
+- Exemplos:
+    - Os tipos profissão1 e profissão2 contem o tipo pessoa
+    - Cada um tem seu método oibomdia()*, e podem dar oi utilizando *pessoa.oibomdia()
+    - Implementam a interface gente
+    - Ambos podem acessar o função serhumano() que chama o método oibomdia() de cada gente
+    - Tambem podemos no método serhumano() tomar ações diferentes dependendo do tipo:
+        switch pessoa.(type) { case profissão1: fmt.Println(h.(profissão1).valorquesóexisteemprofissão1) [...] }* 
+    - Go Playground pré-pronto: https://play.golang.org/p/VLbo_1uE-U
+    https://play.golang.org/p/zGKr7cvTPF
+    - Go Playground ao vivo: 
+    https://play.golang.org/p/njiKbTT20Cr
+- Onde se utiliza?
+    - Área de formas geométricas (gobyexample.com)
+    - Sort
+    - DB
+    - Writer interface: arquivos locais, http request/response
+- Se isso estiver complicado, não se desespere. É foda mesmo. Com tempo e prática a fluência vem.
+
+
+package main()
+import("fmt")
+
+type pessoa struct {
+  nome  string
+  sobrenome string
+  idade int
+}
+
+type dentista struct{
+  pessoa
+  dentesarrancados int
+  salario float64
+}
+
+type arquiteto struct{
+  pessoa
+  tipodeconstrução  string
+  tamanhodaloucura  string
+}
+
+func (x dentista) oibomdia(){
+  fmt.Println("Meu nome é", x.nome,"e eu já arranquei", x.dentesarrancados, "dentes")
+}
+
+func (x arquiteto) oibomdia(){
+  fmt.Printlm("Meu nome é", x.nome,"e ouve só minha loucura: BOM DIA!")
+}
+
+type gente interface{
+  oibomdia()
+}
+
+func serhumano(g gente){
+  g.oibomdia()
+}
+
+func main(){
+  mrdente := dentista{
+    pessoa: pessoa{
+      nome: "Mister Dente",
+      sobrenome:  "da Silva",
+      idade:  50,
+    },
+    dentesarrancados: 8912,
+    salário: 252525,
+  }
+
+  mrprédio := arquiteto{
+    pessoa: pessoa{"Mister Prédio","Afonso",51},
+    tipodeconstrução: "Hospício",
+    tamanhodaloucura: "mucholoko",
+    }
+  }
+
+  // usando os métodos:
+  mrdente.oibomdia()
+  mrprédio.oibomdia()
+
+  // via interface
+  serhumano(mrdente)
+  serhumano(mrprédio)
+}
+
+// Cap 12.6
+
+- Funções anônimas não precisam de nome
+- São descartáveis
+- Útil para go routine
+- Define e já usa ela
+- Dentro do main
+
+func main(){
+  x := 341
+
+  func(x int){
+    fmt.Println(x,"vezes 12345 é:",x*12345)
+  }(x)
+}
+
+// Cap 12.7
+
+- É possível atribuir uma função como valor à uma variável
+
+func main(){
+  x := 341
+
+  y := func(x int) int{
+    return x*12345
+  }
+
+  fmt.Println(x,"vezes 12345 é:",y(x))
+}
+
+// Cap 12.8
+
+- A função devolve uma função (que pode ter int como parâmtro e devolver int)
+//                  parâmtetro
+//                            devolve uma função cujo parâmtreo e int e valor de retorno int
+func retornaumafunção() func(int) int{
+  return func(i int) int{
+    return i*10
+  }
+}
+
+x := retornaumafunção()
+y := x(3)
+fmt.Println(y)
+
+// se quiser ir  direto, faça assim
+
+fmt.Println(retornaumafunção()(3))o
+
+
+// Cap 12.9
+
+- Callback é passar uma função como argumento de outra função 
+
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	t := somenteImpares(soma, []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}...)
+	fmt.Println(t)
+}
+
+func soma(x ...int) int {
+	sum := 0
+	for _, v := range x {
+		sum += v
+	}
+	return sum
+}
+
+func somenteImpares(f func(x ...int) int, y ...int) int {
+	var impares []int
+	for _, i := range y {
+		if i%2 != 0 {
+			impares = append(impares, i)
+		}
+	}
+	return f(impares...)
+}
+
+// Cap 12.10
+
+- Closure é cercar ou capturar um scope para que possamos utilizá-lo em outro contexto. Já vimos:
+    - Package-level scope
+    - Function-level scope
+    - Code-block-in-code-block scope
+- Exemplo de closure:
+    - func i() func() int { x := 0; return func() int { x++; return x } }
+    - Quando fizermos a := i() teremos um scope, um valor para x.
+    - Quando fizermos b := i() teremos outro scope, e x terá um valor independente do x acima.
+- Closures nos permitem salvar dados entre function calls e ao mesmo tempo isolar estes dados do resto do código.
+
+
+package main
+import("fmt")
+
+func main(){
+  a := i()
+
+  fmt.Println(a()) // Printa 1
+  fmt.Println(a()) // Printa 2
+  fmt.Println(a()) // Printa 33
+  fmt.Println(a()) // Printa 4
+
+  b := i()
+
+  fmt.Println(b()) // Printa 1
+  fmt.Println(b()) // Printa 2
+  fmt.Println(b()) // Printa 3
+}
+
+func i() func() int{
+  x := 0
+  return func() int {
+    x++
+    return x
+  }
+}
+
+
+// Cap 12.11
+
+- Prefira usar loops pois eles usam menos memoria e tem menos chance de quebrar
+
+
+func fatorial(x int)  int{
+  if x == 0 || x == 1 {
+    return 1
+  } else {
+    return x * fatorial(x-1)
+  }
+}
+
+// Revisão Cap 12
+
+- Revisão:
+    - Funções!
+        - Servem para abstrair código
+        - E para reutilizar código
+    - A ordem das coisas é:
+        - func (receiver) identifier (parameters) (returns) { code }
+    - Parâmetros vs. argumentos
+    - Funções variádicas
+        - Múltiplos parâmetros
+        - Múltiplos argumentos
+    - Métodos
+    - Interfaces & polimorfismo
+    - Defer
+        - "Deixa pra depois!"
+    - Returns
+        - Múltiplos returns
+        - Returns com nome (blé!)
+    - Funcs como expressões
+        - Atribuindo uma função a uma variável
+    - Callbacks
+        - Passando uma função como argumento para outra função
+    - Closure
+        - Capturando um scope
+        - Variáveis declaradas em scopes externos são visíveis em scopes internos
+    - Recursividade
+        - Uma função que chama a ela mesma
+        - Fatoriais 
+
+// Cap 13.1
+
+- Exercício:
+    - Crie uma função que retorne um int
+    - Crie outra função que retorne um int e uma string
+    - Chame as duas funções
+    - Demonstre seus resultados
+
+// Cap 13.2
+
+- Crie uma função que receba um parâmetro variádico do tipo int e retorne a soma de todos os ints recebidos;
+- Passe um valor do tipo slice of int como argumento para a função;
+- Crie outra função, esta deve receber um valor do tipo slice of int e retornar a soma de todos os elementos da slice;
+- Passe um valor do tipo slice of int como argumento para a função
+
+// Cap 13.3
+
+- Utilize a declaração defer de maneira que demonstre que sua execução só ocorre ao final do contexto ao qual ela pertence.
+
+// Cap 13.4
+
+- Crie um tipo struct "pessoa" que contenha os campos:
+    - nome
+    - sobrenome
+    - idade
+- Crie um método para "pessoa" que demonstre o nome completo e a idade;
+- Crie um valor de tipo "pessoa";
+- Utilize o método criado para demonstrar esse valor.
+
+
+// Cap 13.5
+
+- Crie um tipo "quadrado"
+- Crie um tipo "círculo"
+- Crie um método "área" para cada tipo que calcule e retorne a área da figura
+    - Área do círculo: 2 * π * raio
+    - Área do quadrado: lado * lado
+- Crie um tipo "figura" que defina como interface qualquer tipo que tiver o método "área"
+- Crie uma função "info" que receba um tipo "figura" e retorne a área da figura
+- Crie um valor de tipo "quadrado"
+- Crie um valor de tipo "círculo"
+- Use a função "info" para demonstrar a área do "quadrado"
+- Use a função "info" para demonstrar a área do "círculo"
+
+// Cap 13.6
+
+- Crie e utilize uma função anônima.
+
+// Cap 13.7
+
+- Atribua uma função a uma variável.
+- Chame essa função.
+
+// Cap 13.8
+
+- Crie uma função que retorna uma função.
+- Atribua a função retornada a uma variável.
+- Chame a função retornada.
+
+// Cap 13.9
+
+- Callback: passe uma função como argumento a outra função.
+
+// Cap 13.10
+
+- Demonstre o funcionamento de um closure.
+- Ou seja: crie uma função que retorna outra função, onde esta outra função faz uso de uma variável alem de seu scope.
+
+// Cap  14.1
+
+- Todos os valores ficam armazenados na memória.
+- Toda localização na memória possui um endereço.
+- Um pointeiro se refere a esse endereço.
+- Notações:
+    - &variável mostra o endereço de uma variável
+        - %T: variável vs. &variável
+    - *variável faz de-reference, mostra o valor que consta nesse endereço
+    - ????: *&var funciona!
+    - *type é um tipo que contem o endereço de um valor do tipo type, nesse caso * não é um operador
+- Exemplo: a := 0; b := &a; *b++
+
+// Cap 14.2
+
+- Ponteiros permitem compartilhar endereços de memória. Isso é útil quando:
+    - Não queremos passar grandes volumes de dados pra lá e pra cá
+    - Queremos mudar um valor em sua localização original (tudo em Go é pass by value!)
+- Exemplos:
+    - x := 0; funçãoquemudaovalordoargumentopra1(x); Print(x)
+    - x := 0; funçãoquemudaovalordo*argumentopra1(&x); Print(x)
+
+// Cap 15.1
+
+- Crie um valor e atribua-o a uma variável.
+- Demonstre o endereço deste valor na memória.
+
+// Cap 15.2
+
+- Crie um struct "pessoa"
+- Crie uma função chamada mudeMe que tenha *pessoa como parâmetro. Essa função deve mudar um valor armazenado no endereço *pessoa.
+    - Dica: a maneira "correta" para fazer dereference de um valor em um struct seria (*valor).campo
+    - Mas consta uma exceção na documentação. Link: https://golang.org/ref/spec#Selectors
+    - "As an exception, if the type of x is a named pointer type and (*x).f is a valid selector expression denoting a field (but not a method), 
+    - → x.f is shorthand for (*x).f." ←
+    - Ou seja, podemos usar tanto o atalho p1.nome quanto o tradicional (*p1).nome
+- Crie um valor do tipo pessoa;
+- Use a função mudeMe e demonstre o resultado.
