@@ -1527,3 +1527,249 @@ func fatorial(x int)  int{
     - Ou seja, podemos usar tanto o atalho p1.nome quanto o tradicional (*p1).nome
 - Crie um valor do tipo pessoa;
 - Use a função mudeMe e demonstre o resultado.
+
+// Cap 16.1
+
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+)
+
+func main() {
+	type ColorGroup struct {
+		ID     int
+		Name   string
+		Colors []string
+	}
+	group := ColorGroup{
+		ID:     1,
+		Name:   "Reds",
+		Colors: []string{"Crimson", "Red", "Ruby", "Maroon"},
+	}
+	b, err := json.Marshal(group)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+	os.Stdout.Write(b)
+}
+
+// Cap 16.2
+
+- Sempre que você exporta de um pacote para outro,
+- vc precisa colocar o nome das struct e de seus tipos com iniciais maísuculas
+
+package main
+import(
+  "fmt"
+  "encoding/json"
+)
+
+type pessoa struct{
+  Nome  string
+  Sobrenome  string
+  Idade int
+  Profissao  string
+  Contabancaria float64
+}
+
+func main(){
+  jamesbond := pessoa{"James","Bond",40,"Agente Secreto", 1000000.50}
+  darthvader := pessoa{"Anakin","Skywalker",50,"Vilão Intergalático", 50000000000.01}
+
+  j, err := json.Marshal(jamesbond)
+  if err != nil{fmt.Println(err)}
+  d, err2 := json.Marshal(darthvader)
+  if err2 != nil{fmt.Println(err2)}
+  fmt.Println(string(j))
+  fmt.Println(string(d))
+}
+
+// Cap 17.2
+
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+)
+
+type informacoes struct { //isso são tags com o nome que elas tem no jason, para caso vc queira trocar o nome da variavel
+	Nome          string  `json:"Nome"`
+	Sobrenome     string  `json:"Sobrenome"`
+	Idade         int     `json:"Idade"`
+	Profissao     string  `json:"Profissao"`
+	Contabancaria float64 `json:"Contabancaria"`
+}
+
+func main() {
+
+	sb := []byte(`{"Nome":"James","Sobrenome":"Bond","Idade":40,"Profissao":"Agente Secreto","Contabancaria":1000000.5}`)
+
+	var jamesbond informacoes
+	err := json.Unmarshal(sb, &jamesbond)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+
+	fmt.Println(jamesbond)
+	fmt.Println(jamesbond.Profissao)
+}
+
+// Cap 16.4
+
+- A interface writer do pacote io.
+- type Writer interface { Write(p []byte) (n int, err error) }
+    - pkg os:   func (f *File) Write(b []byte) (n int, err error)
+    - pkg json: func NewEncoder(w io.Writer) *Encoder
+- "Println [...] writes to standard output."
+    - func Println [...] return Fprintln(os.Stdout, a...)
+    - func Fprintln(w io.Writer, a ...interface{}) (n int, err error)
+    - Stdout: NewFile(uintptr(syscall.Stdout), "/dev/stdout") (Google: Standard streams)
+    - func NewFile(fd uintptr, name string) *File
+    - func (f *File) Write(b []byte) (n int, err error)
+- Exemplo:
+    - Println
+    - Fprintln os.Stdout
+    - io.WriteString os.Stdout
+    - Ou:
+        - func Dial(network, address string) (Conn, error)
+        - type Conn interface { [...] Write(b []byte) (n int, err error) [...] }
+
+
+// Cap 16.5
+
+package main
+
+import(
+  "fmt"
+  "sort"
+)
+
+func main(){
+  ss := []string("abóbora","maça","laranja","banana")
+  fmt.Println(ss)
+  sort.Strings(ss)
+  fmt.Println(ss)
+  si := []int(123,414,56463,143,6421,951)
+  fmt.Println(si)
+  sort.Ints(si)
+  fmt.Println(si)
+
+}
+
+// Cap 16.6
+
+- Agora vamos criar nosso próprio sort, ele precisa ser da mesma interface,
+- com os mesmos métods que a função sorte recebe
+
+package main
+
+import("fmt";"sort")
+
+type carro struct {
+  nome  string
+  potencia  int
+  consumo int
+}
+
+type ordenarPorPotencia []carro
+
+func (x ordenarPorPotencia) Len() int{
+  return len(x)
+}
+func (x ordenarPorPotencia) Less(i, j int) bool{
+  if x[i].potencia < x[j].potencia{
+    return true
+  }else{
+    return false
+  }
+}
+func (x ordenarPorPotencia) Swap(i, j int){
+  x[i],x[j] = x[j],x[i]
+}
+
+type ordenarPorConsumo []carro
+func (x ordenarPorConsumo) Len() int{
+  return len(x)
+}
+func (x ordenarPorConsumo) Less(i, j int) bool{
+  if x[i].consumo < x[j].consumo{
+    return true
+  }else{
+    return false
+  }
+}
+func (x ordenarPorConsumo) Swap(i, j int){
+  x[i],x[j] = x[j],x[i]
+}
+
+type ordenarPorLucroProDonoDoPosto []carro
+
+func main(){
+  carros := []carro{
+    carro{"Chevete",50,5},
+    carro{"Porsche",500,15},
+    carro{"Fusca",20, 30},
+  }
+  
+  fmt.Println(carros)
+  sort.Sort(ordenarPorPotencia(carros))
+  fmt.Println(carros)
+
+
+  fmt.Println(carros)
+  sort.Sort(ordenarPorConsumo(carros))
+  fmt.Println(carros)
+
+}
+
+// Cap 16.7
+
+package main
+import(
+  "fmt"
+  "golang.org/x/crypto/bcrypt"
+)
+
+func main(){
+  senha := "20julho1980"
+  senhaerrada := "20julho1990"
+  sb,err := bcrypt.GenerateFromPassword([]byte(senha),10)
+  if err != nil{fmt.Println(err)}
+  fmt.Println(string(sb))
+  fmt.Println(bcrypt.CompareHashAndPassword(sb,[]byte(senha)))
+  fmt.Println(bcrypt.CompareHashAndPassword(sb,[]byte(senhaerrada)))
+
+}
+
+// Cap 17.1
+
+- Partindo do código abaixo, utilize marshal para transformar []user em JSON.
+    - https://play.golang.org/p/U0jea43X55
+- Atenção! Tem pegadinha aqui.
+
+// Cap 17.2
+
+- Partindo do código abaixo, utilize unmarshal e demonstre os valores.
+    - https://play.golang.org/p/b_UuCcZag9
+- Dica: JSON-to-Go.
+
+// Cap 17.3
+
+- Partindo do código abaixo, utilize NewEncoder() e Encode() para enviar as informações como JSON para Stdout.
+    - https://play.golang.org/p/BVRZTdlUZ_
+- Desafio: descubra o que é, e utilize, method chaining para conectar os dois métodos acima.
+
+// Cap 17.4
+
+- Partindo do código abaixo, ordene a []int e a []string.
+    - https://play.golang.org/p/H_q75mpmHW
+
+// Cap 17.5
+
+- Partindo do código abaixo, ordene os []user por idade e sobrenome.
+    - https://play.golang.org/p/BVRZTdlUZ_
+- Os valores no campo Sayings devem ser ordenados tambem, e demonstrados de maneira esteticamente harmoniosa.
