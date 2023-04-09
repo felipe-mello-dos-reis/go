@@ -1772,4 +1772,222 @@ func main(){
 
 - Partindo do código abaixo, ordene os []user por idade e sobrenome.
     - https://play.golang.org/p/BVRZTdlUZ_
-- Os valores no campo Sayings devem ser ordenados tambem, e demonstrados de maneira esteticamente harmoniosa.
+- Os valores no campos Sayings devem ser ordenados tambem, e demonstrados de maneira esteticamente harmoniosa.
+
+// Cap 18.1
+
+- Concorrência permite que várias coisas acontecam simultaneamente e de maneira independente
+- Concorrência é a maneira de pensar e organizar o código
+- Paralelismo acontece quando você tem um código concorrente sendo executado em um dispositivo com múltiplos núcleos
+- Na programação, não queremos saber de paralelismo, pois isso depende da arquitetura que o código é executado
+- Estamos interessados em desenvolver códigos concorrentes
+
+// Cap 18.2
+
+- goroutines são "threads" -> é uma forma de um processo se dividir em duas ou mais tarefas de maneira concorrente
+- quando vc coloca um go antes da  função, ela se tornará uma goroutines
+- para garantir que todas as goroutines sejam executadas antes da func main finalizar, use sync.WaitGroup
+
+package main
+
+import (
+	"fmt"
+	"runtime"
+	"sync"
+	"time"
+)
+
+var wg sync.WaitGroup
+
+func main() {
+  fmt.Println("GOOS:", runtime.GOOS)
+  fmt.Println("GOARCH:", runtime.GOARCH)
+	wg.Add(2)
+	// descobrir o número de CPU
+  fmt.Println("NumCPU:", runtime.NumCPU())
+  fmt.Println("NumGoroutine:", runtime.NumGoroutine()) // apenas 1 (main)
+	go func1()
+	go func2()
+
+	fmt.Println("NumGoroutine:", runtime.NumGoroutine()) // 3 (main func1 e func2)
+	wg.Wait()
+}
+
+func func1() {
+	for i := 0; i < 10; i++ {
+		fmt.Println("func1:", i)
+		time.Sleep(20) // ms
+	}
+	wg.Done()
+}
+
+func func2() {
+	for i := 0; i < 10; i++ {
+		fmt.Println("func2:", i)
+		time.Sleep(20) // ms
+	}
+	wg.Done()
+}
+
+// Cap 18.3
+
+- yield é a troca entre processos (geralmente não executados em paralelismo)
+- Não comunique complatilhando memória, compartilhe memória por comunicação
+- Em go, os valores são compartilhados por canais. Apenas uma go routine tem acesso ao valor a cada momento
+- Condições de corrida não podem acontecer (race condition)
+- Agora vamos dar um mergulho na documentação:
+    - https://golang.org/doc/effective_go.h...
+    - https://pt.wikipedia.org/wiki/Multipl...
+    - O que é yield? runtime.Gosched()
+- Race condition: 
+        Função 1       var     Função 2
+         Lendo: 0   →   0
+         Yield          0   →   Lendo: 0
+         var++: 1               Yield
+         Grava: 1   →   1       var++: 1
+                        1   ←   Grava: 1
+         Lendo: 1   ←   1
+         Yield          1   →   Lendo: 1
+         var++: 2               Yield
+         Grava: 2   →   2       var++: 2
+                        2   ←   Grava: 2
+- E é por isso que vamos ver mutex, atomic e, por fim, channels.
+- A variáveld deve ficar travada enquanto outra função está utilizando ela
+
+
+// Cap 18.4
+
+- runtime.Gosched() diz para executar outra go routine e depois retornar
+- pode rodar go run -race arquivo.go para identificar race condition
+
+
+package main
+
+import("fmt";"sync","runtime")
+
+var wg sync.WaitGroup
+func main(){
+  contador := 0
+  totaldegoroutines := 10
+  wg.Add(totaldegoroutines)
+  for i:= 0; i< totaldegoroutines; i++{
+    go func(){
+     v:= contador
+     // yield
+      runtime.Gosched()
+      v++
+      contador = v
+      wg.Done()
+    } () //funcao anonima
+    wg.Wait()
+  }
+  fmt.Println(contador)
+}
+
+// Cap 18.5
+
+- use sync.Mutex lock e unlock para evitar race condition
+
+
+
+package main
+
+import (
+	"fmt"
+	"runtime"
+	"sync"
+)
+
+var wg sync.WaitGroup
+
+func main() {
+	contador := 0
+	totaldegoroutines := 1000
+	wg.Add(totaldegoroutines)
+	var mu sync.Mutex
+	for i := 0; i < totaldegoroutines; i++ {
+		go func() {
+			mu.Lock()
+			v := contador
+			// yield
+			runtime.Gosched()
+			v++
+			contador = v
+			mu.Unlock()
+			wg.Done()
+		}() //funcao anonima
+	}
+	wg.Wait()
+	fmt.Println(contador)
+}
+
+// Cap 18.6
+
+- Atomic pode resolver race condition também
+
+// Cap 19.1
+
+- Terminologia:
+    - GUI: Graphical User Interface
+    - CLI: Command Line Interface
+        - Terminal, console, etc
+    - Unix, Linux, Mac:
+        - Shell, bash
+    - Windows:
+        Command prompt, cmd, dos prompt, powershell
+- Shell/bash commands:
+    - pwd
+    - ls
+        - ls -la
+        - Permissions: owner, group, world
+        - r, w, x → 4, 2, 1 (d = directory)
+        - rwxrwxrwx = owner, group, world
+    - touch
+    - clear
+    - chmod
+        - chmod options permissions filename
+        - chmod 777 arquivo.ext
+    - cd 
+        - cd ../
+        - cd qualquer/pasta/
+    - env
+    - rm [arquivo]
+        - rm -rf [arquivo]
+    - .bash_profile & .bashrc
+        - .bash_profile is executed for login shells, while .bashrc is executed for interactive non-login shells. 
+        - When you login (type username and password) via console, either sitting at the machine, or remotely via ssh: .bash_profile is executed to configure your shell before the initial command prompt.
+    - nano [arquivo]
+    - cat [arquivo]
+    - grep
+        - cat temp2.txt | grep enter
+
+        - ls | grep -i documents
+
+
+// Cap 19.2
+
+- $GOPATH/
+    bin/
+    pkg/
+    src/
+        github.com/
+            [Nome do usuário (github.com)]/
+                [Nome do projeto ou repo]/
+                [Nome do projeto ou repo]/
+                [Nome do projeto ou repo]/
+                [Nome do projeto ou repo]/
+                ...
+                [Nome do projeto ou repo]/
+- GOROOT: onde os binários da instalação do Go foram instalados
+    - GOROOT="/usr/lib/go"
+- GOPATH: onde seus arquivos de trabalho, seu workspace, fica localizado
+    - GOPATH="/home/ellen/go"
+    - export GOPATH=$HOME/go (.bashrc)
+- Package management? go get.
+    - Na prática → e.g. gouuid
+
+// Cap 19.7
+
+- Voce pode compilar um arquivo para ser executado em uma arquitetura/OS diferente da sua
+- GOOS=windows GOARCH=amd64 go build test.go
+- https://godoc.org/runtime#pkg-constants
